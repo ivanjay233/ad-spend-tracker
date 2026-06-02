@@ -1,0 +1,48 @@
+[build-system]
+requires = ["setuptools>=64", "wheel"]
+build-backend = "setuptools.backends._legacy:_Backend"
+
+[project]
+name = "ad-spend-tracker"
+version = "0.1.0"
+description = "Real-time advertising spend monitoring & anomaly detection"
+readme = "README.md"
+license = {text = "MIT"}
+authors = [
+    {name = "Ivan Jay", email = "ivan@boncos.dev"}
+]
+requires-python = ">=3.10"
+dependencies = [
+    "click>=8.0",
+    "pydantic>=2.0",
+    "httpx>=0.24",
+    "pyyaml>=6.0",
+    "rich>=13.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=7.0",
+    "pytest-cov>=4.0",
+    "ruff>=0.1",
+    "mypy>=1.0",
+]
+
+[project.scripts]
+ad-spend = "spend_tracker.cli:cli"
+
+[tool.setuptools.packages.find]
+include = ["spend_tracker*"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py310"
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = ["test_*.py"]
+
+[tool.mypy]
+python_version = "3.10"
+strict = true
+ignore_missing_imports = true
