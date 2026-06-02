@@ -1,0 +1,43 @@
+# Ad Spend Tracker Configuration
+# Copy this file to config.yaml and fill in your credentials.
+
+meta:
+  # Meta Ads API access token (long-lived, from Facebook Developer portal)
+  access_token: "YOUR_META_ACCESS_TOKEN_HERE"
+
+  # Meta Ads account ID (format: act_XXXXXXXXX)
+  ad_account_id: "act_123456789"
+
+telegram:
+  # Telegram bot token from @BotFather
+  bot_token: "YOUR_TELEGRAM_BOT_TOKEN_HERE"
+
+  # Target chat ID (can be user, group, or channel)
+  chat_id: "YOUR_TELEGRAM_CHAT_ID_HERE"
+
+thresholds:
+  # Default budget caps
+  daily_soft_cap: 100.0       # Warning alert when spend reaches this
+  daily_hard_cap: 150.0       # Critical alert when spend reaches this
+
+  # Account-level daily cap across all campaigns
+  daily_account_cap: 500.0
+
+  # Anomaly detection settings
+  anomaly_zscore: 2.5         # Z-score threshold (higher = less sensitive)
+  spike_pct: 50.0             # % change to trigger spike alert
+
+  # Optional per-campaign budget overrides
+  campaigns:
+    - id: "CAMP_ID_1"
+      soft_cap: 50.0
+      hard_cap: 80.0
+      spike_pct: 30.0         # More sensitive for this campaign
+
+    - id: "CAMP_ID_2"
+      soft_cap: 200.0
+      hard_cap: 300.0
+      anomaly_zscore: 3.0     # Less sensitive for high-spend campaign
+
+# Polling interval in seconds (for automated runs)
+poll_interval: 300
