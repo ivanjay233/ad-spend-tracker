@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from datetime import datetime, timezone
 from typing import Any, Dict
-from unittest.mock import MagicMock, patch
+from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
 import yaml
@@ -293,13 +293,13 @@ class TestTrackerEnginePolling:
     @pytest.mark.asyncio
     async def test_poll_all_success(self, engine: TrackerEngine) -> None:
         """Successful poll returns spend data from mock provider."""
-        mock = MagicMock()
-        mock.fetch_campaigns.return_value = [
+        mock = AsyncMock(spec=engine.providers["meta"].__class__)
+        mock.fetch_campaigns = AsyncMock(return_value=[
             Campaign(id="c1", name="Camp 1")
-        ]
-        mock.fetch_spend.return_value = [
+        ])
+        mock.fetch_spend = AsyncMock(return_value=[
             Spend(campaign_id="c1", amount=42.0)
-        ]
+        ])
         engine._providers["meta"] = mock
 
         results = await engine.poll_all_campaigns()
@@ -310,8 +310,8 @@ class TestTrackerEnginePolling:
     @pytest.mark.asyncio
     async def test_poll_all_provider_error(self, engine: TrackerEngine) -> None:
         """Provider error is caught and logged, doesn't crash."""
-        mock = MagicMock()
-        mock.fetch_campaigns.side_effect = RuntimeError("API timeout")
+        mock = AsyncMock(spec=engine.providers["meta"].__class__)
+        mock.fetch_campaigns = AsyncMock(side_effect=RuntimeError("API timeout"))
         engine._providers["meta"] = mock
 
         results = await engine.poll_all_campaigns()
@@ -320,14 +320,14 @@ class TestTrackerEnginePolling:
     @pytest.mark.asyncio
     async def test_poll_single_campaign(self, engine: TrackerEngine) -> None:
         """Polling a single campaign returns its spend."""
-        mock = MagicMock()
-        mock.fetch_campaigns.return_value = [
+        mock = AsyncMock(spec=engine.providers["meta"].__class__)
+        mock.fetch_campaigns = AsyncMock(return_value=[
             Campaign(id="c1", name="Camp 1"),
             Campaign(id="c2", name="Camp 2"),
-        ]
-        mock.fetch_campaign_spend.return_value = Spend(
+        ])
+        mock.fetch_campaign_spend = AsyncMock(return_value=Spend(
             campaign_id="c1", amount=99.0
-        )
+        ))
         engine._providers["meta"] = mock
 
         result = await engine.poll_campaign("c1")
@@ -337,8 +337,8 @@ class TestTrackerEnginePolling:
     @pytest.mark.asyncio
     async def test_poll_campaign_not_found(self, engine: TrackerEngine) -> None:
         """Returns None when campaign not found in any provider."""
-        mock = MagicMock()
-        mock.fetch_campaigns.return_value = []
+        mock = AsyncMock(spec=engine.providers["meta"].__class__)
+        mock.fetch_campaigns = AsyncMock(return_value=[])
         engine._providers["meta"] = mock
 
         result = await engine.poll_campaign("ghost_campaign")
